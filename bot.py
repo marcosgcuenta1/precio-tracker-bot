@@ -117,6 +117,14 @@ def extract_price(html: str) -> float | None:
         price = _find_price(data)
         if price and 1 < price < 100000:
             return price
+    # Fallback 1: microdata (itemprop="price" content="170.00"), p.ej. Cuylás
+    m = re.search(r'itemprop="price"[^>]*content="([0-9]+(?:[.,][0-9]{1,2})?)"', html)
+    if m:
+        try:
+            return float(m.group(1).replace(",", "."))
+        except ValueError:
+            pass
+    # Fallback 2: cualquier "price": ... en JSON embebido
     m = re.search(r'"price"\s*:\s*"?([0-9]+(?:[.,][0-9]{1,2})?)', html)
     if m:
         try:
@@ -126,7 +134,46 @@ def extract_price(html: str) -> float | None:
     return None
 
 
-def fetch_price(page, url: str, debug_name: str = "", save_debug: bool = False) -> float | None:
+def extract_size_info(html: str, size_label: str) -> dict | None:
+    """Busca el selector de tallas embebido ("sizes":[{...}]) que usa la tienda
+    oficial de NNormal/Camper y devuelve disponibilidad/cantidad/precio de la
+    talla pedida (etiqueta UK, p.ej. "8.5" = EU 42 2/3). None si no hay selector."""
+    for m in re.finditer(r'"sizes"\s*:\s*\[', html):
+        start = m.end() - 1
+        depth, end = 0, None
+        for k in range(start, min(len(html), start + 40000)):
+            c = html[k]
+            if c == "[":
+                depth += 1
+            elif c == "]":
+                depth -= 1
+                if depth == 0:
+                    end = k + 1
+                    break
+        if end is None:
+            continue
+        try:
+            arr = json.loads(html[start:end])
+        except Exception:  # noqa: BLE001
+            continue
+        for s in arr:
+            if isinstance(s, dict) and str(s.get("value")) == str(size_label):
+                price = None
+                praw = s.get("price")
+                if isinstance(praw, dict):
+                    try:
+                        price = float(praw.get("current"))
+                    except (TypeError, ValueError):
+                        pass
+                return {
+                    "available": bool(s.get("available")),
+                    "quantity": s.get("quantity"),
+                    "price": price,
+                }
+    return None
+
+
+def fetch_page(page, url: str, debug_name: str = "", save_debug: bool = False) -> str | None:
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=45000)
         page.wait_for_timeout(3000)
@@ -138,7 +185,7 @@ def fetch_price(page, url: str, debug_name: str = "", save_debug: bool = False) 
         with open(os.path.join(BASE_DIR, f"debug_{debug_name}.html"),
                   "w", encoding="utf-8") as f:
             f.write(html)
-    return extract_price(html)
+    return html
 
 
 # --------------------------------------------------------------------------- #
@@ -160,7 +207,13 @@ def run_once(cfg: dict, token: str, chat_id: str,
             name = prod.get("name", prod["url"])
             url = prod["url"]
             target = prod.get("target_price")
-            price = fetch_price(page, url, debug_name=str(i), save_debug=debug)
+            size = prod.get("size_uk")   # talla UK del selector oficial (8.5 = EU 42 2/3)
+
+            html = fetch_page(page, url, debug_name=str(i), save_debug=debug)
+            price = extract_price(html) if html else None
+            size_info = extract_size_info(html, size) if (html and size) else None
+            if size_info and size_info.get("price"):
+                price = size_info["price"]   # precio de TU talla, si la web lo da
 
             if price is None:
                 log.warning("[%s] sin precio (¿agotado o cambió la web?)", name)
@@ -173,34 +226,55 @@ def run_once(cfg: dict, token: str, chat_id: str,
             entry = state.get(url, {})
             prev = entry.get("last_price")
             hist_min = entry.get("min_price", price)
-            log.info("[%s] %.2f€ (antes %s)", name, price,
-                     f"{prev:.2f}€" if prev else "—")
+            prev_avail = entry.get("size_available")
+            avail = size_info.get("available") if size_info else None
+            size_txt = f" | talla {size} UK: {'✅ en stock' if avail else '❌ agotada'}" if size_info else ""
+            log.info("[%s] %.2f€ (antes %s)%s", name, price,
+                     f"{prev:.2f}€" if prev else "—", size_txt)
 
             if test_mode:
                 send_telegram(token, chat_id,
-                              f"🔎 <b>{name}</b>\n💶 Más barato ahora: <b>{price:.2f}€</b>"
+                              f"🔎 <b>{name}</b>\n💶 Precio ahora: <b>{price:.2f}€</b>"
+                              + (f"\n👟 Talla {size} UK (EU 42 2/3): "
+                                 f"{'✅ en stock' if avail else '❌ agotada'}" if size_info else "")
                               + (f"\n🎯 Objetivo: {target}€" if target else "")
-                              + f'\n\n<a href="{url}">Ver todas las tiendas</a>')
+                              + f'\n\n<a href="{url}">Ver producto</a>')
             else:
-                dropped = prev is not None and price < prev
-                below_target = target is not None and price <= target
-                if dropped or below_target:
+                # Avisos de stock de TU talla (solo si la web da info de talla)
+                if size_info and prev_avail is not None and avail != prev_avail:
                     alerts += 1
-                    if dropped:
-                        diff = prev - price
-                        motivo = f"📉 ¡Ha bajado! {prev:.2f}€ → <b>{price:.2f}€</b> (−{diff:.2f}€)"
+                    if avail:
+                        stock_msg = (f"✅ <b>¡Tu talla vuelve a estar disponible!</b> "
+                                     f"(talla {size} UK / EU 42 2/3) a {price:.2f}€")
                     else:
-                        motivo = f"🎯 Por debajo de tu objetivo de {target}€"
-                    extra = "  🏆 mínimo histórico" if price <= hist_min else ""
+                        stock_msg = f"❌ Tu talla ({size} UK / EU 42 2/3) se ha agotado."
                     send_telegram(token, chat_id,
-                                  f"👟 <b>{name}</b>\n{motivo}{extra}\n\n"
-                                  f'<a href="{url}">Ver todas las tiendas y comprar</a>')
-                    log.info("AVISO: %s a %.2f€", name, price)
+                                  f"👟 <b>{name}</b>\n{stock_msg}\n\n"
+                                  f'<a href="{url}">Ver producto</a>')
+
+                # Avisos de precio: solo si tu talla esta disponible (o no hay info de talla)
+                if avail is not False:
+                    dropped = prev is not None and price < prev
+                    below_target = target is not None and price <= target
+                    if dropped or below_target:
+                        alerts += 1
+                        if dropped:
+                            diff = prev - price
+                            motivo = f"📉 ¡Ha bajado! {prev:.2f}€ → <b>{price:.2f}€</b> (−{diff:.2f}€)"
+                        else:
+                            motivo = f"🎯 Por debajo de tu objetivo de {target}€"
+                        extra = "  🏆 mínimo histórico" if price <= hist_min else ""
+                        talla_l = f"\n👟 Talla {size} UK (EU 42 2/3) en stock" if size_info else ""
+                        send_telegram(token, chat_id,
+                                      f"👟 <b>{name}</b>\n{motivo}{extra}{talla_l}\n\n"
+                                      f'<a href="{url}">Comprar</a>')
+                        log.info("AVISO: %s a %.2f€", name, price)
 
             state[url] = {
                 "name": name,
                 "last_price": price,
                 "min_price": min(hist_min, price),
+                "size_available": avail,
             }
         browser.close()
 

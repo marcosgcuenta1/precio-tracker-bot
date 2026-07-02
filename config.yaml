@@ -9,7 +9,23 @@
 
 poll_interval_minutes: 180   # cada cuanto revisa (en local, en bucle)
 
+# Modelo vigilado: NNormal Tomir 02 NN (N2ZTR25) SOLO — no confundir con el
+# Tomir 02 normal (N2ZTR02). Talla de Marcos: EU 42 2/3 = UK 8.5 (el selector
+# de la tienda oficial usa tallas UK; "size_uk: 8.5" activa el control de talla:
+# precio de esa talla + avisos de agotada/repuesta).
 products:
-  - name: "NNormal Tomir 2.0 (precio más barato del mercado)"
-    url: "https://www.runnea.com/zapatillas-running/nnormal/tomir-2.0/1023862/precios/todas/"
-    target_price: null   # opcional: p.ej. 120 -> avisa ademas si baja de 120 €
+  - name: "Tomir 02 NN Blue (N2ZTR25-003) — oficial"
+    url: "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_blue-N2ZTR25-003"
+    size_uk: "8.5"
+    target_price: null
+  - name: "Tomir 02 NN Black (N2ZTR25-001) — oficial"
+    url: "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_black-N2ZTR25-001"
+    size_uk: "8.5"
+    target_price: null
+  - name: "Tomir 02 NN Burgundy (N2ZTR25-004) — oficial"
+    url: "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_burgundy-N2ZTR25-004"
+    size_uk: "8.5"
+    target_price: null
+  - name: "Tomir 2.0 NN en Cuylás (N2ZTR25)"
+    url: "https://cuylas.com/zapatillas-running-nnormal/zapatillas-nnormal-tomir-20-n2ztr25"
+    target_price: null   # Cuylás no expone tallas igual; se vigila el precio del producto
