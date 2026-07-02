@@ -76,6 +76,46 @@ def send_telegram(token: str, chat_id: str, text: str) -> None:
         log.error("No se pudo enviar a Telegram: %s", e)
 
 
+WELCOME = (
+    "👟 <b>Bot vigila-precios: NNormal Tomir 02 NN</b>\n\n"
+    "Vigilo el modelo <b>Tomir 02 NN (N2ZTR25)</b> en talla <b>EU 42 2/3</b> "
+    "cada hora en estas webs:\n"
+    "• Tienda oficial NNormal (los 5 colores, con control de talla)\n"
+    "• Cuylás\n• Forum Sport\n• Deporvillage\n\n"
+    "📌 <b>Importante:</b> si no te escribo es porque NO hay ninguna rebaja "
+    "(ahora todas están a 170€). Solo te enviaré un mensaje cuando:\n"
+    "• 📉 el precio baje en alguna web\n"
+    "• ❌ tu talla se agote en algún color\n"
+    "• ✅ tu talla vuelva a estar disponible\n\n"
+    "Sin noticias = sin rebajas. 🤫"
+)
+
+
+def answer_start_messages(token: str, chat_id: str, state: dict) -> None:
+    """Lee los mensajes pendientes del bot (getUpdates) y responde a /start o
+    /help con la explicacion. Solo responde al chat autorizado; el resto se
+    ignora. Guarda el offset en el estado para no reprocesar."""
+    meta = state.get("_meta", {})
+    offset = meta.get("last_update_id", 0) + 1
+    try:
+        r = requests.get(f"https://api.telegram.org/bot{token}/getUpdates",
+                         params={"offset": offset, "timeout": 0}, timeout=20)
+        updates = r.json().get("result", []) if r.ok else []
+    except Exception as e:  # noqa: BLE001
+        log.warning("No se pudo leer getUpdates: %s", e)
+        return
+    last_id = meta.get("last_update_id", 0)
+    for u in updates:
+        last_id = max(last_id, u.get("update_id", 0))
+        msg = u.get("message") or {}
+        text = (msg.get("text") or "").strip().lower()
+        sender = str((msg.get("chat") or {}).get("id", ""))
+        if sender == str(chat_id) and text in ("/start", "/help", "start", "hola"):
+            send_telegram(token, chat_id, WELCOME)
+            log.info("Respondido /start con el mensaje de bienvenida.")
+    state["_meta"] = {**meta, "last_update_id": last_id}
+
+
 # --------------------------------------------------------------------------- #
 # Extraccion de precio
 # --------------------------------------------------------------------------- #
@@ -198,6 +238,10 @@ def run_once(cfg: dict, token: str, chat_id: str,
     state = load_state()
     products = cfg.get("products", [])
     alerts = 0
+
+    # Responder a /start o /help pendientes con la explicacion del bot
+    if not test_mode:
+        answer_start_messages(token, chat_id, state)
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
