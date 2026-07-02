@@ -1,1 +1,26 @@
-{}
+{
+  "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_blue-N2ZTR25-003": {
+    "name": "Tomir 02 NN Blue (N2ZTR25-003) — oficial",
+    "last_price": 170.0,
+    "min_price": 170.0,
+    "size_available": true
+  },
+  "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_black-N2ZTR25-001": {
+    "name": "Tomir 02 NN Black (N2ZTR25-001) — oficial",
+    "last_price": 170.0,
+    "min_price": 170.0,
+    "size_available": true
+  },
+  "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_burgundy-N2ZTR25-004": {
+    "name": "Tomir 02 NN Burgundy (N2ZTR25-004) — oficial",
+    "last_price": 170.0,
+    "min_price": 170.0,
+    "size_available": true
+  },
+  "https://cuylas.com/zapatillas-running-nnormal/zapatillas-nnormal-tomir-20-n2ztr25": {
+    "name": "Tomir 2.0 NN en Cuylás (N2ZTR25)",
+    "last_price": 170.0,
+    "min_price": 170.0,
+    "size_available": null
+  }
+}
