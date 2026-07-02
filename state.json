@@ -40,5 +40,8 @@
     "last_price": 170.0,
     "min_price": 170.0,
     "size_available": true
+  },
+  "_meta": {
+    "last_update_id": 0
   }
 }
