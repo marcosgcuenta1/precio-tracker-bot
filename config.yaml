@@ -7,7 +7,7 @@
 # de "precios/todas" y pega esa URL aqui. (Tambien vale cualquier URL de tienda
 # o comparador que exponga precio en JSON-LD.)
 
-poll_interval_minutes: 180   # cada cuanto revisa (en local, en bucle)
+poll_interval_minutes: 60   # cada cuanto revisa (en local, en bucle; en la nube manda el cron)
 
 # Modelo vigilado: NNormal Tomir 02 NN (N2ZTR25) SOLO — no confundir con el
 # Tomir 02 normal (N2ZTR02). Talla de Marcos: EU 42 2/3 = UK 8.5 (el selector

@@ -2,7 +2,7 @@ name: Vigila precios
 
 on:
   schedule:
-    - cron: "0 */3 * * *"   # cada 3 horas (UTC)
+    - cron: "0 * * * *"   # cada hora (UTC). Repo publico = minutos ilimitados.
   workflow_dispatch: {}
 
 permissions:
