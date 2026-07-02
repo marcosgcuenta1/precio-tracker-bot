@@ -29,3 +29,9 @@ products:
   - name: "Tomir 2.0 NN en Cuylás (N2ZTR25)"
     url: "https://cuylas.com/zapatillas-running-nnormal/zapatillas-nnormal-tomir-20-n2ztr25"
     target_price: null   # Cuylás no expone tallas igual; se vigila el precio del producto
+  - name: "Tomir 2.0 NN azul/gris/blanco en Deporvillage"
+    url: "https://www.deporvillage.com/zapatillas-nnormal-tomir-2-0-azul-grisaceo-blanco"
+    target_price: null   # la pagina original de Marcos: es el NN (solo codigos N2ZTR25)
+  - name: "Tomir 2.0 NN Blue en Forum Sport (n2ztr25-003)"
+    url: "https://www.forumsport.com/es-es/nnormal-zapatillas-trail-hombre-tomir-20-w-n2ztr25-003-1001045230-p"
+    target_price: null
