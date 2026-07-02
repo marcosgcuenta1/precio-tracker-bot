@@ -79,14 +79,12 @@ def send_telegram(token: str, chat_id: str, text: str) -> None:
 WELCOME = (
     "👟 <b>Bot vigila-precios: NNormal Tomir 02 NN</b>\n\n"
     "Vigilo el modelo <b>Tomir 02 NN (N2ZTR25)</b> en talla <b>EU 42 2/3</b> "
-    "cada hora en estas webs:\n"
-    "• Tienda oficial NNormal (los 5 colores, con control de talla)\n"
+    "cada hora en:\n"
+    "• Tienda oficial NNormal (los 5 colores)\n"
     "• Cuylás\n• Forum Sport\n• Deporvillage\n\n"
-    "📌 <b>Importante:</b> si no te escribo es porque NO hay ninguna rebaja "
-    "(ahora todas están a 170€). Solo te enviaré un mensaje cuando:\n"
-    "• 📉 el precio baje en alguna web\n"
-    "• ❌ tu talla se agote en algún color\n"
-    "• ✅ tu talla vuelva a estar disponible\n\n"
+    "No hay más tiendas que vendan este modelo: estas son todas.\n\n"
+    "📌 <b>Solo te escribiré cuando el precio BAJE en alguna de ellas</b> "
+    "(y tu talla esté disponible). Ahora todas están a 170€.\n\n"
     "Sin noticias = sin rebajas. 🤫"
 )
 
@@ -271,7 +269,6 @@ def run_once(cfg: dict, token: str, chat_id: str,
             entry = state.get(url, {})
             prev = entry.get("last_price")
             hist_min = entry.get("min_price", price)
-            prev_avail = entry.get("size_available")
             avail = size_info.get("available") if size_info else None
             size_txt = f" | talla {size} UK: {'✅ en stock' if avail else '❌ agotada'}" if size_info else ""
             log.info("[%s] %.2f€ (antes %s)%s", name, price,
@@ -285,19 +282,9 @@ def run_once(cfg: dict, token: str, chat_id: str,
                               + (f"\n🎯 Objetivo: {target}€" if target else "")
                               + f'\n\n<a href="{url}">Ver producto</a>')
             else:
-                # Avisos de stock de TU talla (solo si la web da info de talla)
-                if size_info and prev_avail is not None and avail != prev_avail:
-                    alerts += 1
-                    if avail:
-                        stock_msg = (f"✅ <b>¡Tu talla vuelve a estar disponible!</b> "
-                                     f"(talla {size} UK / EU 42 2/3) a {price:.2f}€")
-                    else:
-                        stock_msg = f"❌ Tu talla ({size} UK / EU 42 2/3) se ha agotado."
-                    send_telegram(token, chat_id,
-                                  f"👟 <b>{name}</b>\n{stock_msg}\n\n"
-                                  f'<a href="{url}">Ver producto</a>')
-
-                # Avisos de precio: solo si tu talla esta disponible (o no hay info de talla)
+                # SOLO avisos de bajada de precio (Marcos no quiere avisos de stock).
+                # La talla se sigue mirando unicamente para NO avisar de una rebaja
+                # que no puede comprar (talla agotada).
                 if avail is not False:
                     dropped = prev is not None and price < prev
                     below_target = target is not None and price <= target
