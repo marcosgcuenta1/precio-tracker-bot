@@ -26,6 +26,14 @@ products:
     url: "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_burgundy-N2ZTR25-004"
     size_uk: "8.5"
     target_price: null
+  - name: "Tomir 02 NN Beige (N2ZTR25-002) — oficial"
+    url: "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_beige-N2ZTR25-002"
+    size_uk: "8.5"
+    target_price: null
+  - name: "Tomir 02 NN Green/White (N2ZTR25-005) — oficial"
+    url: "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_green_white-N2ZTR25-005"
+    size_uk: "8.5"
+    target_price: null
   - name: "Tomir 2.0 NN en Cuylás (N2ZTR25)"
     url: "https://cuylas.com/zapatillas-running-nnormal/zapatillas-nnormal-tomir-20-n2ztr25"
     target_price: null   # Cuylás no expone tallas igual; se vigila el precio del producto
