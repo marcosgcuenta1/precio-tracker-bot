@@ -50,7 +50,8 @@ log = logging.getLogger("precios")
 
 def load_state() -> dict:
     if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, encoding="utf-8") as f:
+        # utf-8-sig: tolera BOM (p.ej. si el archivo se toco desde PowerShell)
+        with open(STATE_FILE, encoding="utf-8-sig") as f:
             return json.load(f)
     return {}
 
