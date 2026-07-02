@@ -12,4 +12,4 @@ poll_interval_minutes: 180   # cada cuanto revisa (en local, en bucle)
 products:
   - name: "NNormal Tomir 2.0 (precio más barato del mercado)"
     url: "https://www.runnea.com/zapatillas-running/nnormal/tomir-2.0/1023862/precios/todas/"
-    target_price: null   # opcional: p.ej. 120 -> avisa ademas si baja de 120 €
+    target_price: 200   # TEMPORAL (prueba de envio). Se revierte a null despues.
