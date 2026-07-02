@@ -28,5 +28,17 @@
     "last_price": 170.0,
     "min_price": 170.0,
     "size_available": null
+  },
+  "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_beige-N2ZTR25-002": {
+    "name": "Tomir 02 NN Beige (N2ZTR25-002) — oficial",
+    "last_price": 170.0,
+    "min_price": 170.0,
+    "size_available": true
+  },
+  "https://www.nnormal.com/es_ES/hombre/zapatos/tomir/nnormal-tomir_02_shoe_green_white-N2ZTR25-005": {
+    "name": "Tomir 02 NN Green/White (N2ZTR25-005) — oficial",
+    "last_price": 170.0,
+    "min_price": 170.0,
+    "size_available": true
   }
 }
