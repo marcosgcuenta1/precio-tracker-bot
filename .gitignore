@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+debug_*.html
+# state.json SI se versiona (asi persiste en GitHub Actions)

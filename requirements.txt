@@ -1,0 +1,6 @@
+# Fijadas por el Python 3.9 local sin compilador C++ (wheels cp39):
+playwright==1.44.0
+greenlet==3.0.3
+requests>=2.31
+PyYAML>=6.0
+python-dotenv>=1.0

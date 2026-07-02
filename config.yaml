@@ -1,0 +1,15 @@
+# --- Bot vigila-precios ---
+# Vigila un MODELO en TODAS las tiendas a la vez usando un comparador (Runnea),
+# que agrega decenas de tiendas en una sola pagina. El bot lee el precio MAS
+# BARATO del mercado (lowPrice del JSON-LD) y te avisa cuando baja.
+#
+# Para vigilar otro modelo: busca el producto en runnea.com, entra en su pagina
+# de "precios/todas" y pega esa URL aqui. (Tambien vale cualquier URL de tienda
+# o comparador que exponga precio en JSON-LD.)
+
+poll_interval_minutes: 180   # cada cuanto revisa (en local, en bucle)
+
+products:
+  - name: "NNormal Tomir 2.0 (precio más barato del mercado)"
+    url: "https://www.runnea.com/zapatillas-running/nnormal/tomir-2.0/1023862/precios/todas/"
+    target_price: null   # opcional: p.ej. 120 -> avisa ademas si baja de 120 €
